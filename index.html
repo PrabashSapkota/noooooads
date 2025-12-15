@@ -59,43 +59,43 @@
       right: 20px;
       background-color: rgba(0, 0, 0, 0.6);
       color: white;
-      padding: 8px 12px;
+      padding: 10px 15px;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 18px;
+      font-weight: bold;
       z-index: 1000;
       pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    #count {
+      color: #ff4444; /* Highlight the number */
     }
     @media screen and (max-width: 768px) {
-      .jw-controlbar {
-        font-size: 12px;
-        padding: 8px;
-      }
       #viewer-count {
-        font-size: 14px;
-        padding: 6px 10px;
+        font-size: 16px;
+        padding: 8px 12px;
+        top: 15px;
+        right: 15px;
       }
     }
     @media screen and (max-width: 480px) {
-      .jw-controlbar {
-        font-size: 10px;
-        padding: 6px;
-      }
-    }
-    @media screen and (orientation: landscape) {
-      #player, .iframe-container {
-        height: 100vh;
-        width: 100%;
+      #viewer-count {
+        font-size: 14px;
+        padding: 6px 10px;
       }
     }
   </style>
 </head>
 <body>
   <div id="player"></div>
-  <div id="count" style="display:none;">0 viewers</div>
-  <div id="viewer-count">0 viewers</div>
+
+  <!-- Viewer count overlay -->
+  <div id="viewer-count">
+    <span id="count">0</span> Viewers Watching
+  </div>
 
   <script>
-    // Preload critical resources and setup player + live viewer count
+    // Setup player and live viewer count
     (function() {
       const params = new URLSearchParams(window.location.search);
       const srcParam = params.get("src");
@@ -116,8 +116,8 @@
       // Extract the stream ID: last 30 characters of the src (iframe link)
       const id = src.length >= 30 ? src.slice(-30) : src;
 
-      // Setup live viewer count overlay
-      const viewerCountElement = document.getElementById('viewer-count');
+      // Viewer count element
+      const countElement = document.getElementById('count');
 
       // Initialize Socket.IO connection
       const socket = io('wss://wss.timstreams.site', {
@@ -126,7 +126,7 @@
 
       socket.on('updateViewCount', (data) => {
         if (data.id === id) {
-          viewerCountElement.textContent = `${data.viewCount} viewers`;
+          countElement.textContent = data.viewCount;
         }
       });
 
@@ -169,7 +169,7 @@
           };
           window.addEventListener("orientationchange", resizePlayer);
           window.addEventListener("resize", resizePlayer);
-          resizePlayer(); // Initial call
+          resizePlayer();
         } else {
           const container = document.createElement("div");
           container.className = "iframe-container";
@@ -182,7 +182,7 @@
           container.appendChild(iframe);
           document.body.innerHTML = "";
           document.body.appendChild(container);
-          document.body.appendChild(viewerCountElement); // Keep overlay on top
+          document.body.appendChild(document.getElementById('viewer-count')); // Re-append overlay on top
         }
       };
 
