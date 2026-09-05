@@ -5,15 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Universal Player</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --yt-red:#ff0000;
-    --ctrl-h:48px;
+    --yt-red-glow:rgba(255,0,0,0.45);
+    --ctrl-h:52px;
   }
   *{box-sizing:border-box;}
   html,body{
     margin:0;padding:0;background:#000;width:100%;height:100vh;
-    overflow:hidden;font-family:"Roboto","Segoe UI",Arial,sans-serif;
+    overflow:hidden;font-family:"Poppins","Segoe UI",Arial,sans-serif;
+    font-weight:600;
     overscroll-behavior:none;-webkit-tap-highlight-color:transparent;
   }
   #app{position:relative;width:100%;height:100vh;background:#000;}
@@ -39,24 +44,29 @@
   }
   .center-btn{
     pointer-events:auto;
-    width:76px;height:76px;border-radius:50%;
-    background:rgba(0,0,0,0.55);
+    width:80px;height:80px;border-radius:50%;
+    background:rgba(0,0,0,0.6);
     display:flex;align-items:center;justify-content:center;
-    cursor:pointer;transition:transform .15s ease, background .15s ease;
-    border:2px solid rgba(255,255,255,0.85);
+    cursor:pointer;transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+    border:2.5px solid rgba(255,255,255,0.9);
+    box-shadow:0 6px 22px rgba(0,0,0,0.5);
   }
-  .center-btn:hover{transform:scale(1.08);background:rgba(0,0,0,0.75);}
-  .center-btn svg{width:34px;height:34px;fill:#fff;margin-left:3px;}
+  .center-btn:hover{transform:scale(1.1);background:rgba(0,0,0,0.8);box-shadow:0 8px 28px rgba(0,0,0,0.65);}
+  .center-btn svg{width:36px;height:36px;fill:#fff;stroke:#fff;stroke-width:0.6;margin-left:4px;}
 
   .unmute-pill{
     pointer-events:auto;
-    position:absolute;top:16px;left:50%;transform:translateX(-50%);
-    background:rgba(28,28,28,0.85);color:#fff;
-    padding:8px 16px;border-radius:20px;font-size:13px;
-    display:flex;align-items:center;gap:8px;cursor:pointer;
-    border:1px solid rgba(255,255,255,0.3);
+    position:absolute;top:20px;left:50%;transform:translateX(-50%);
+    background:rgba(20,20,20,0.92);color:#fff;
+    padding:10px 20px;border-radius:24px;font-size:14px;font-weight:700;
+    display:flex;align-items:center;gap:9px;cursor:pointer;
+    border:1.5px solid rgba(255,255,255,0.4);
+    box-shadow:0 4px 18px rgba(0,0,0,0.5);
+    z-index:40;
+    transition:transform .15s ease, background .15s ease;
   }
-  .unmute-pill svg{width:16px;height:16px;fill:#fff;}
+  .unmute-pill:hover{transform:translateX(-50%) scale(1.05);background:rgba(35,35,35,0.95);}
+  .unmute-pill svg{width:17px;height:17px;fill:#fff;}
 
   .spinner{
     width:48px;height:48px;border-radius:50%;
@@ -73,8 +83,8 @@
   /* ============ CONTROLS ============ */
   .yt-controls{
     position:absolute;left:0;right:0;bottom:0;z-index:25;
-    background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0) 100%);
-    padding-top:28px;
+    background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0) 100%);
+    padding-top:30px;padding-bottom:4px;
     opacity:1;transition:opacity .25s ease;
   }
   .yt-controls.hidden{opacity:0;pointer-events:none;}
@@ -86,23 +96,24 @@
     margin-bottom:2px;
   }
   .progress-track{
-    position:relative;width:100%;height:3px;background:rgba(255,255,255,0.25);
-    border-radius:2px;transition:height .12s ease;
+    position:relative;width:100%;height:4px;background:rgba(255,255,255,0.28);
+    border-radius:3px;transition:height .12s ease;
   }
-  .progress-row:hover .progress-track{height:5px;}
+  .progress-row:hover .progress-track{height:6px;}
   .progress-buffered{
     position:absolute;top:0;left:0;height:100%;
-    background:rgba(255,255,255,0.4);border-radius:2px;width:0%;
+    background:rgba(255,255,255,0.45);border-radius:3px;width:0%;
   }
   .progress-played{
     position:absolute;top:0;left:0;height:100%;
-    background:var(--yt-red);border-radius:2px;width:0%;
+    background:var(--yt-red);border-radius:3px;width:0%;
+    box-shadow:0 0 6px var(--yt-red-glow);
   }
   .progress-thumb{
-    position:absolute;top:50%;width:13px;height:13px;border-radius:50%;
+    position:absolute;top:50%;width:15px;height:15px;border-radius:50%;
     background:var(--yt-red);transform:translate(-50%,-50%) scale(0);
     transition:transform .12s ease;left:0%;
-    box-shadow:0 0 0 4px rgba(255,0,0,0.25);
+    box-shadow:0 0 0 5px rgba(255,0,0,0.3), 0 2px 6px rgba(0,0,0,0.5);
   }
   .progress-row:hover .progress-thumb{transform:translate(-50%,-50%) scale(1);}
 
@@ -112,32 +123,38 @@
     padding:0 8px;color:#fff;
   }
   .ctrl-btn{
-    width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-    background:transparent;border:none;cursor:pointer;border-radius:4px;
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;cursor:pointer;border-radius:50%;
     position:relative;flex-shrink:0;
+    transition:background .15s ease, transform .12s ease;
   }
-  .ctrl-btn:hover{background:rgba(255,255,255,0.1);}
-  .ctrl-btn svg{width:24px;height:24px;fill:#fff;}
-  .ctrl-btn.active svg{fill:var(--yt-red);}
+  .ctrl-btn:hover{background:rgba(255,255,255,0.14);transform:scale(1.08);}
+  .ctrl-btn:active{transform:scale(0.95);}
+  .ctrl-btn svg{
+    width:25px;height:25px;fill:#fff;stroke:#fff;stroke-width:0.6;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.4));
+  }
+  .ctrl-btn.active svg{fill:var(--yt-red);stroke:var(--yt-red);}
 
   .spacer{flex:1;}
 
   .time-display{
-    color:#fff;font-size:13px;padding:0 8px;white-space:nowrap;
-    font-variant-numeric:tabular-nums;user-select:none;
+    color:#fff;font-size:14px;font-weight:700;padding:0 10px;white-space:nowrap;
+    font-variant-numeric:tabular-nums;user-select:none;letter-spacing:.2px;
   }
 
   /* live badge */
   .live-badge{
-    display:none;align-items:center;gap:6px;
-    padding:0 10px;height:26px;border-radius:3px;
-    background:rgba(255,255,255,0.12);color:#fff;
-    font-size:12px;font-weight:700;letter-spacing:.5px;
-    cursor:pointer;margin-right:6px;flex-shrink:0;
+    display:none;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    cursor:pointer;margin-right:8px;flex-shrink:0;
+    transition:background .15s ease;
   }
+  .live-badge:hover{background:rgba(255,255,255,0.2);}
   .live-badge.show{display:flex;}
-  .live-dot{width:8px;height:8px;border-radius:50%;background:#909090;}
-  .live-badge.live-edge .live-dot{background:var(--yt-red);}
+  .live-dot{width:11px;height:11px;border-radius:50%;background:#909090;box-shadow:0 0 0 0 rgba(255,0,0,0);transition:background .2s ease,box-shadow .2s ease;}
+  .live-badge.live-edge .live-dot{background:var(--yt-red);box-shadow:0 0 8px 1px var(--yt-red-glow);}
 
   /* volume */
   .volume-group{display:flex;align-items:center;flex-shrink:0;}
@@ -162,30 +179,32 @@
   /* settings menu */
   .settings-wrap{position:relative;flex-shrink:0;}
   .settings-menu{
-    position:absolute;bottom:48px;right:0;
-    background:rgba(28,28,28,0.95);color:#fff;border-radius:8px;
-    min-width:200px;font-size:13px;overflow:hidden;
-    box-shadow:0 4px 20px rgba(0,0,0,0.6);
+    position:absolute;bottom:52px;right:0;
+    background:rgba(24,24,24,0.97);color:#fff;border-radius:12px;
+    min-width:210px;font-size:13.5px;font-weight:600;overflow:hidden;
+    box-shadow:0 8px 28px rgba(0,0,0,0.65);
+    border:1px solid rgba(255,255,255,0.08);
     display:none;max-height:260px;overflow-y:auto;
   }
   .settings-menu.open{display:block;}
   .settings-item{
     display:flex;align-items:center;justify-content:space-between;
-    padding:10px 14px;cursor:pointer;
+    padding:12px 16px;cursor:pointer;transition:background .12s ease;
   }
-  .settings-item:hover{background:rgba(255,255,255,0.1);}
-  .settings-item .label{opacity:.85;}
-  .settings-item .value{opacity:.6;font-size:12px;}
+  .settings-item:hover{background:rgba(255,255,255,0.12);}
+  .settings-item .label{opacity:.9;}
+  .settings-item .value{opacity:.6;font-size:12px;font-weight:700;}
   .settings-sub-header{
-    display:flex;align-items:center;gap:8px;padding:10px 14px;
-    border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;font-weight:600;
+    display:flex;align-items:center;gap:8px;padding:12px 16px;
+    border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;font-weight:700;
   }
   .settings-sub-header svg{width:16px;height:16px;fill:#fff;}
   .settings-option{
-    padding:10px 14px 10px 34px;cursor:pointer;display:flex;justify-content:space-between;
+    padding:11px 16px 11px 36px;cursor:pointer;display:flex;justify-content:space-between;
+    transition:background .12s ease;font-weight:600;
   }
-  .settings-option:hover{background:rgba(255,255,255,0.1);}
-  .settings-option.selected{color:var(--yt-red);}
+  .settings-option:hover{background:rgba(255,255,255,0.12);}
+  .settings-option.selected{color:var(--yt-red);font-weight:700;}
   .settings-option .check{width:14px;}
 
   @media (max-width:520px){
@@ -241,8 +260,8 @@
 
         <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
 
-        <div class="live-badge" id="liveBadge">
-          <span class="live-dot"></span><span>LIVE</span>
+        <div class="live-badge" id="liveBadge" title="Jump to live">
+          <span class="live-dot"></span>
         </div>
 
         <div class="spacer"></div>
@@ -397,15 +416,18 @@
     }
   }
 
-  unmutePill.addEventListener("click", function () {
+  unmutePill.addEventListener("click", function (e) {
+    e.stopPropagation();
     video.muted = false;
     video.volume = 1;
     volumeSlider.value = 1;
     updateMuteIcon();
     unmutePill.style.display = "none";
+    if (video.paused) video.play();
   });
 
-  bigPlayBtn.addEventListener("click", function () {
+  bigPlayBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
     video.play();
   });
 
@@ -462,7 +484,7 @@
     const cur = video.currentTime;
 
     if (isLive) {
-      timeDisplay.textContent = "LIVE";
+      timeDisplay.textContent = formatTime(cur);
       const edge = getLiveEdge();
       const distFromEdge = edge - cur;
       liveBadge.classList.toggle("live-edge", distFromEdge < 3);
